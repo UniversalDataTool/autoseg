@@ -61,7 +61,7 @@ test("should be able to get a mask", async (t) => {
   const imageAddress = m.getImageAddr()
   m.HEAPU8.set(imData, imageAddress)
 
-  m.clearClassPoints()
+  m.clearClassElements()
   m.setClassColor(0, 0xff0000ff)
   m.setClassColor(1, 0xffffffff)
   m.addClassPoint(0, 100, 125)
@@ -85,4 +85,41 @@ test("should be able to get a mask", async (t) => {
   t.assert(cppImDataUint8[0] === 255)
 
   fs.writeFileSync(f("./mask.bin"), cppImDataUint8)
+})
+
+test("should be able to get a simple mode polygon mask", async (t) => {
+  await setup()
+  m.setVerboseMode(true)
+  m.setImageSize(320, 249)
+  m.setSimpleMode(true)
+  const imageAddress = m.getImageAddr()
+  m.HEAPU8.set(imData, imageAddress)
+
+  m.clearClassElements()
+  m.setClassColor(0, 0xff0000ff)
+  m.setClassColor(1, 0xffffffff)
+
+  const pi1 = m.addPolygon(0)
+  const pi2 = m.addPolygon(1)
+
+  m.addLineToPolygon(pi1, 0, 0, 249, 40)
+  m.addLineToPolygon(pi1, 249, 40, 249, 0)
+  m.addLineToPolygon(pi1, 249, 0, 0, 0)
+
+  m.addLineToPolygon(pi2, 80, 117, 144, 180)
+  m.addLineToPolygon(pi2, 144, 180, 80, 180)
+  m.addLineToPolygon(pi2, 80, 180, 80, 117)
+
+  m.computeSuperPixels()
+  m.computeMasks()
+  const maskAddress = m.getColoredMask()
+  const cppImDataUint8 = new Uint8ClampedArray(
+    m.HEAPU8.buffer,
+    maskAddress,
+    imData.length
+  )
+
+  t.pass("TODO for now manually confirm mask content in mask-polygon-only.bin!")
+
+  fs.writeFileSync(f("./mask-polygon-only.bin"), cppImDataUint8)
 })

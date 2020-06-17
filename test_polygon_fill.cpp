@@ -35,7 +35,7 @@ int main() {
   addLineToPolygon(pi2, 144, 180, 80, 180);
   addLineToPolygon(pi2, 80, 180, 80, 117);
 
-  coloredMask = std::vector<uint32_t>(width * height);
+  coloredMask = std::vector<uint32_t>(width * height, 0);
   overlayPolygonsOnColoredMask();
 #endif
 

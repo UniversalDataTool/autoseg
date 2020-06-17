@@ -1,0 +1,11 @@
+{
+  "name": "autoseg",
+  "version": "0.0.3",
+  "main": "index.js",
+  "repository": "git@github.com:UniversalDataTool/autoseg.git",
+  "author": "seveibar <seveibar@gmail.com>",
+  "license": "LGPL",
+  "devDependencies": {
+    "ava": "^3.9.0"
+  }
+}

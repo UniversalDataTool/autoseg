@@ -16,3 +16,4 @@ mincut.bin
 *.bc
 test.txt
 test-module
+node_modules

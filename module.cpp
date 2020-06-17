@@ -14,6 +14,7 @@ using namespace emscripten;
 std::shared_ptr<std::vector<uint8_t>> image;
 bool loggedVersion = false;
 bool polygonImpliedClassPoints = true;
+bool simpleMode = false;
 
 void setImageSize(int w, int h) {
   if (!loggedVersion) {
@@ -26,6 +27,8 @@ void setImageSize(int w, int h) {
 }
 
 void setVerboseMode(bool trueForOn) { verboseMode = trueForOn; }
+
+void setSimpleMode(bool trueForOn) { simpleMode = trueForOn; }
 
 void setPolygonImpliedClassPoints(bool trueForOn) {
   polygonImpliedClassPoints = trueForOn;
@@ -50,26 +53,35 @@ void addClassPoint(int cls, int ri, int ci) {
   classPoints.push_back(ClassPoint{cls, ri, ci});
 }
 
-void computeSuperPixels() { superpixel(*image); }
+void computeSuperPixels() {
+  if (!simpleMode) {
+    superpixel(*image);
+  }
+}
 
 void computeMasks() {
-  if (polygonImpliedClassPoints) {
-    addPolygonImpliedClassPoints();
-  }
-  prepareForMinCuts();
-  for (int i = 0; i < totalClasses; i++) {
-    printf("running min cut for cls: %d\n", i);
-    minCutCls(i);
-  }
-  if (verboseMode) {
-    for (int clsi = 0; clsi < totalClasses; clsi++) {
-      for (int cci = 0; cci < numClusters; cci++) {
-        printf("clsi: %4d  cci: %4d (ri: %4.0f, ci: %4.0f),    on: %d\n", clsi,
-               cci, centers[cci][0], centers[cci][1], clsMasks[cci][clsi]);
+  if (!simpleMode) {
+    if (polygonImpliedClassPoints) {
+      addPolygonImpliedClassPoints();
+    }
+    prepareForMinCuts();
+    for (int i = 0; i < totalClasses; i++) {
+      printf("running min cut for cls: %d\n", i);
+      minCutCls(i);
+    }
+    if (verboseMode) {
+      for (int clsi = 0; clsi < totalClasses; clsi++) {
+        for (int cci = 0; cci < numClusters; cci++) {
+          printf("clsi: %4d  cci: %4d (ri: %4.0f, ci: %4.0f),    on: %d\n",
+                 clsi, cci, centers[cci][0], centers[cci][1],
+                 clsMasks[cci][clsi]);
+        }
       }
     }
+    resolveMasks();
+  } else {
+    coloredMask = std::vector<uint32_t>(width * height);
   }
-  resolveMasks();
   overlayPolygonsOnColoredMask();
 }
 
@@ -92,6 +104,7 @@ EMSCRIPTEN_BINDINGS(my_module) {
   function("computeSuperPixels", &computeSuperPixels);
   function("computeMasks", &computeMasks);
   function("setVerboseMode", &setVerboseMode);
+  function("setSimpleMode", &setSimpleMode);
   function("setMaxClusters", &setMaxClusters);
   function("addPolygon", &addPolygon);
   function("addLineToPolygon", &addLineToPolygon);
