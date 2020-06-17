@@ -1,9 +1,9 @@
 build/module.js: setup globals.bc
+	# -s ENVIRONMENT=web \
+	# -Os \
 	docker run -it -v $(shell pwd):/src seveibar/emscripten em++ \
 		-std=c++1z -I/usr/local/include --bind \
 		-o build/module.js ./module.cpp \
-		-s ENVIRONMENT=web \
-		-Os \
 		-s MODULARIZE=1 \
 		-s SINGLE_FILE=1 \
 		-s ALLOW_MEMORY_GROWTH=1 \
