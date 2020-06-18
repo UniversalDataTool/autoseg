@@ -2,6 +2,7 @@ const test = require("ava")
 const fs = require("fs")
 const path = require("path")
 const m = require("../../build/module.js")
+const range = require("lodash/range")
 
 const f = (p) => path.join(__dirname, p)
 
@@ -101,6 +102,7 @@ test("should be able to get a simple mode polygon mask", async (t) => {
 
   const pi1 = m.addPolygon(0)
   const pi2 = m.addPolygon(1)
+  const pi3 = m.addPolygon(1)
 
   m.addLineToPolygon(pi1, 0, 0, 249, 40)
   m.addLineToPolygon(pi1, 249, 40, 249, 0)
@@ -109,6 +111,15 @@ test("should be able to get a simple mode polygon mask", async (t) => {
   m.addLineToPolygon(pi2, 80, 117, 144, 180)
   m.addLineToPolygon(pi2, 144, 180, 80, 180)
   m.addLineToPolygon(pi2, 80, 180, 80, 117)
+
+  const points = range(7).map((i) => [
+    100 + Math.sin((i / 7) * Math.PI * 2) * 80,
+    100 + Math.cos((i / 7) * Math.PI * 2) * 80,
+  ])
+  const pairs = points.map((p, i) => [p, points[(i + 1) % points.length]])
+  for (const [p1, p2] of pairs) {
+    m.addLineToPolygon(pi3, p1[0], p1[1], p2[0], p2[1])
+  }
 
   m.computeSuperPixels()
   m.computeMasks()

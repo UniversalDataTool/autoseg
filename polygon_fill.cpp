@@ -54,10 +54,10 @@ double getColumnIntersection(const Line &line, const int ri) {
 
 bool isInBounds(const Line &line, const double ri, const double ci) {
   // TODO precompute and put in Line
-  const int sm_ri = (line.ri1 < line.ri2 ? line.ri1 : line.ri2);
-  const int lg_ri = (line.ri1 > line.ri2 ? line.ri1 : line.ri2);
-  const int sm_ci = (line.ci1 < line.ci2 ? line.ci1 : line.ci2);
-  const int lg_ci = (line.ci1 > line.ci2 ? line.ci1 : line.ci2);
+  const double sm_ri = (line.ri1 < line.ri2 ? line.ri1 : line.ri2);
+  const double lg_ri = (line.ri1 > line.ri2 ? line.ri1 : line.ri2);
+  const double sm_ci = (line.ci1 < line.ci2 ? line.ci1 : line.ci2);
+  const double lg_ci = (line.ci1 > line.ci2 ? line.ci1 : line.ci2);
   return ri >= sm_ri && ri <= lg_ri && ci >= sm_ci && ci <= lg_ci;
 }
 
@@ -135,6 +135,13 @@ void overlayPolygonsOnColoredMask() {
       if (intersections.size() <= 1)
         continue;
       while (currentIntersection < intersections.size() - 1) {
+        double length = intersections[currentIntersection + 1] -
+                        intersections[currentIntersection];
+        if (length <= 0) {
+          // This occurs where two lines meet, i.e. at each corner
+          currentIntersection++;
+          continue;
+        }
         if (filling) {
           int start = nearbyint(intersections[currentIntersection]);
           if (start < 0)

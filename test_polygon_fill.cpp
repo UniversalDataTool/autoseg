@@ -15,8 +15,8 @@
 using namespace boost;
 
 // Can't test both at same time
-// #define TEST_OVERLAY 1
-#define TEST_CLASSPOINTS 1
+#define TEST_OVERLAY 1
+// #define TEST_CLASSPOINTS 1
 
 int main() {
   std::vector<BYTE> *imageFileData = readFile("assets/orange.bin");
@@ -31,9 +31,9 @@ int main() {
   addLineToPolygon(pi1, 249, 40, 249, 0);
   addLineToPolygon(pi1, 249, 0, 0, 0);
 
-  addLineToPolygon(pi2, 80, 117, 144, 180);
+  addLineToPolygon(pi2, 100, 117, 144, 180);
   addLineToPolygon(pi2, 144, 180, 80, 180);
-  addLineToPolygon(pi2, 80, 180, 80, 117);
+  addLineToPolygon(pi2, 80, 180, 100, 117);
 
   coloredMask = std::vector<uint32_t>(width * height, 0);
   overlayPolygonsOnColoredMask();

@@ -43,6 +43,7 @@ globals.bc: globals.cpp globals.hpp
 test_modulejs: debug_build/module.js
 	npx ava --verbose ./tests/modulejs/basic.test.js
 	python util/read-bin-image.py tests/modulejs/mask.bin
+	python util/read-bin-image.py tests/modulejs/mask-polygon-only.bin
 
 assets/orange.bin:
 	python util/create-orange-binary.py
