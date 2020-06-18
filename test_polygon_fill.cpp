@@ -36,8 +36,12 @@ int main() {
   addLineToPolygon(pi2, 144, 180, 80, 180);
   addLineToPolygon(pi2, 80, 180, 100, 117);
 
-  addLineToPolygon(pi3, 200, 50, 100, 100);
-  addLineToPolygon(pi3, 100, 100, 200, 150);
+  addLineToPolygon(pi3, 200, 50, 180, 30);
+  addLineToPolygon(pi3, 180, 30, 100, 100);
+  addLineToPolygon(pi3, 100, 100, 110, 120);
+  addLineToPolygon(pi3, 110, 120, 130, 110);
+  addLineToPolygon(pi3, 130, 110, 120, 115);
+  addLineToPolygon(pi3, 120, 115, 200, 150);
   addLineToPolygon(pi3, 200, 150, 150, 100);
   addLineToPolygon(pi3, 150, 100, 200, 50);
 

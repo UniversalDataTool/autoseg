@@ -70,12 +70,13 @@ void getAllIntersections(const ClassPolygon &polygon,
     }
   }
   std::sort(intersections.begin(), intersections.end());
-  // Remove corners
-  for (int i = intersections.size() - 2; i >= 0; i--) {
-    if (intersections[i] == intersections[i - 1]) {
-      intersections.erase(intersections.begin() + i);
-      intersections.erase(intersections.begin() + (i - 1));
-    }
+  const bool hasDuplicate =
+      std::adjacent_find(intersections.begin(), intersections.end()) !=
+      intersections.end();
+  if (hasDuplicate) {
+    // Vary ri to avoid scanning a corner
+    intersections.clear();
+    getAllIntersections(polygon, intersections, ri + 0.01);
   }
 }
 
@@ -136,7 +137,7 @@ void overlayPolygonsOnColoredMask() {
   for (auto polygon = polygons.begin(); polygon != polygons.end(); ++polygon) {
     // HACK We set ri = 0.01 to avoid solving for intersections that can't be
     // removed (since the polygons points are required to be on integers)
-    for (double ri = 0.01; ri < height; ri++) {
+    for (double ri = 0; ri < height; ri++) {
       int currentIntersection = 0;
       bool filling = true;
       vector<double> intersections;
