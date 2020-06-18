@@ -6,10 +6,24 @@ build/module.js: setup globals.bc
 		-o build/module.js ./module.cpp \
 		-s MODULARIZE=1 \
 		-s SINGLE_FILE=1 \
+		-s ENVIRONMENT=web \
 		-s ALLOW_MEMORY_GROWTH=1 \
 		./globals.bc ./colorspace/ColorSpace.bc ./colorspace/Comparison.bc ./colorspace/Conversion.bc
-	rm test-module/module.js
+
+	# Create separate node version
+	docker run -it -v $(shell pwd):/src seveibar/emscripten em++ \
+		-std=c++1z -I/usr/local/include --bind \
+		-o build/node.js ./module.cpp \
+		-s MODULARIZE=1 \
+		-s SINGLE_FILE=1 \
+		-s ENVIRONMENT=node \
+		-s ALLOW_MEMORY_GROWTH=1 \
+		./globals.bc ./colorspace/ColorSpace.bc ./colorspace/Comparison.bc ./colorspace/Conversion.bc
+
+	rm -f test-module/module.js
+	rm -f test-module/node.js
 	cp build/module.js test-module/module.js
+	cp build/node.js test-module/node.js
 	cd test-module && npm version patch && npm publish
 
 
