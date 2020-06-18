@@ -62,7 +62,7 @@ bool isInBounds(const Line &line, const double ri, const double ci) {
 }
 
 void getAllIntersections(const ClassPolygon &polygon,
-                         vector<double> &intersections, int ri) {
+                         vector<double> &intersections, const double ri) {
   for (auto line = polygon.lines.begin(); line != polygon.lines.end(); ++line) {
     double ci = getColumnIntersection(*line, ri);
     if (isInBounds(*line, ri, ci)) {
@@ -70,6 +70,13 @@ void getAllIntersections(const ClassPolygon &polygon,
     }
   }
   std::sort(intersections.begin(), intersections.end());
+  // Remove corners
+  for (int i = intersections.size() - 2; i >= 0; i--) {
+    if (intersections[i] == intersections[i - 1]) {
+      intersections.erase(intersections.begin() + i);
+      intersections.erase(intersections.begin() + (i - 1));
+    }
+  }
 }
 
 void addPolygonImpliedClassPoints() {
@@ -127,21 +134,21 @@ void overlayPolygonsOnColoredMask() {
   // TODO check for not-closed polygons in javascript not here
 
   for (auto polygon = polygons.begin(); polygon != polygons.end(); ++polygon) {
-    for (int ri = 0; ri < height; ri++) {
+    // HACK We set ri = 0.01 to avoid solving for intersections that can't be
+    // removed (since the polygons points are required to be on integers)
+    for (double ri = 0.01; ri < height; ri++) {
       int currentIntersection = 0;
       bool filling = true;
       vector<double> intersections;
       getAllIntersections(*polygon, intersections, ri);
+      // printf("\nri: %4d  | ", ri);
+      // for (int i = 0; i < intersections.size(); i++) {
+      //   printf("%4.4f ", intersections[i]);
+      // }
+      // printf("\n");
       if (intersections.size() <= 1)
         continue;
       while (currentIntersection < intersections.size() - 1) {
-        double length = intersections[currentIntersection + 1] -
-                        intersections[currentIntersection];
-        if (length <= 0) {
-          // This occurs where two lines meet, i.e. at each corner
-          currentIntersection++;
-          continue;
-        }
         if (filling) {
           int start = nearbyint(intersections[currentIntersection]);
           if (start < 0)

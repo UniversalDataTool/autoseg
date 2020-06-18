@@ -26,6 +26,7 @@ int main() {
 #ifdef TEST_OVERLAY
   const int pi1 = addPolygon(0);
   const int pi2 = addPolygon(1);
+  const int pi3 = addPolygon(1);
 
   addLineToPolygon(pi1, 0, 0, 249, 40);
   addLineToPolygon(pi1, 249, 40, 249, 0);
@@ -34,6 +35,11 @@ int main() {
   addLineToPolygon(pi2, 100, 117, 144, 180);
   addLineToPolygon(pi2, 144, 180, 80, 180);
   addLineToPolygon(pi2, 80, 180, 100, 117);
+
+  addLineToPolygon(pi3, 200, 50, 100, 100);
+  addLineToPolygon(pi3, 100, 100, 200, 150);
+  addLineToPolygon(pi3, 200, 150, 150, 100);
+  addLineToPolygon(pi3, 150, 100, 200, 50);
 
   coloredMask = std::vector<uint32_t>(width * height, 0);
   overlayPolygonsOnColoredMask();
