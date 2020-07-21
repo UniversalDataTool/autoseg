@@ -1,6 +1,7 @@
 build/module.js: setup globals.bc
 	# -s ENVIRONMENT=web \
 	# -Os \
+	# -s TOTAL_MEMORY=100MB
 	docker run -it -v $(shell pwd):/src seveibar/emscripten em++ \
 		-std=c++1z -I/usr/local/include --bind \
 		-o build/module.js ./module.cpp \

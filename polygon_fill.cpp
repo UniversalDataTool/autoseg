@@ -135,18 +135,11 @@ void overlayPolygonsOnColoredMask() {
   // TODO check for not-closed polygons in javascript not here
 
   for (auto polygon = polygons.begin(); polygon != polygons.end(); ++polygon) {
-    // HACK We set ri = 0.01 to avoid solving for intersections that can't be
-    // removed (since the polygons points are required to be on integers)
     for (double ri = 0; ri < height; ri++) {
       int currentIntersection = 0;
       bool filling = true;
       vector<double> intersections;
       getAllIntersections(*polygon, intersections, ri);
-      // printf("\nri: %4d  | ", ri);
-      // for (int i = 0; i < intersections.size(); i++) {
-      //   printf("%4.4f ", intersections[i]);
-      // }
-      // printf("\n");
       if (intersections.size() <= 1)
         continue;
       while (currentIntersection < intersections.size() - 1) {
