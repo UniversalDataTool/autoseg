@@ -46,10 +46,15 @@ test_modulejs: debug_build/module.js
 	python util/read-bin-image.py tests/modulejs/mask.bin
 	python util/read-bin-image.py tests/modulejs/mask-polygon-only.bin
 
-assets/orange.bin:
-	python util/create-orange-binary.py
+assets/orange-320x249.bin:
+	mkdir -p assets
+	python util/create-bin-image.py ./util/orange-320x249.png ./assets/orange-320x249.bin
 
-build/test_super_pixel: setup assets/orange.bin globals.o
+assets/image-3024x4032.bin:
+	mkdir -p assets
+	python util/create-bin-image.py ./util/image-3024x4032.jpg ./assets/image-3024x4032.bin
+
+build/test_super_pixel: setup assets/orange-320x249.bin assets/image-3024x4032.bin globals.o
 	g++ -g -o ./build/test_super_pixel	test_super_pixel.cpp globals.o colorspace/Conversion.o colorspace/ColorSpace.o
 
 colorspace:
@@ -90,9 +95,14 @@ test_min_cut: build/test_min_cut
 	python util/read-bin-image.py ./mincut.bin
 
 .PHONY: test_super_pixel
-test_super_pixel: build/test_super_pixel
-	./build/test_super_pixel
-	python util/read-superpixel.py
+test_super_pixel: build/test_super_pixel assets/image-3024x4032.bin assets/orange-320x249.bin
+	mkdir -p test-outputs
+	valgrind --tool=callgrind ./build/test_super_pixel ./assets/orange-320x249.bin ./test-outputs/orange-320x249-superpixel.bin
+	python util/read-bin-image.py ./test-outputs/orange-320x249-superpixel.bin
+
+	# 118.08 time
+	# time ./build/test_super_pixel ./assets/image-3024x4032.bin ./test-outputs/image-3024x4032-superpixel.bin
+	# python util/read-bin-image.py ./test-outputs/image-3024x4032-superpixel.bin
 
 .PHONY: setup
 setup: colorspace
@@ -102,5 +112,6 @@ setup: colorspace
 clean:
 	rm -f *.o
 	rm -f *.bc
+	rm -rf test-outputs
 	rm -rf build
 	rm -rf colorspace

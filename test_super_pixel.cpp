@@ -5,6 +5,7 @@
 #include <iostream>
 #include <iterator>
 #include <math.h>
+#include <regex>
 #include <vector>
 
 #include "colorspace/ColorSpace.h"
@@ -14,9 +15,16 @@
 
 using blaze::DynamicMatrix;
 
-int main() {
+int main(int argc, char *argv[]) {
 
-  std::ifstream file("assets/orange.bin", std::ios::binary);
+  if (argc != 3) {
+    std::cout << "Not enough arguments, need input.bin and output.bin"
+              << std::endl;
+    return 1;
+  }
+
+  // std::ifstream file("assets/orange.bin", std::ios::binary);
+  std::ifstream file(argv[1], std::ios::binary);
 
   // Stop eating new lines in binary mode!!!
   file.unsetf(std::ios::skipws);
@@ -50,8 +58,13 @@ int main() {
   std::cout << "running..." << std::endl;
 
   // std::vector<uint8_t> *imageFileData = readFile("assets/orange.bin");
-  width = 320;
-  height = 249;
+  std::regex pat("[^0-9]*([0-9]+)x([0-9]+).*");
+  std::smatch cm;
+  std::string filename_str(argv[1]);
+  std::regex_match(filename_str, cm, pat);
+
+  width = std::stoi(cm[1]);
+  height = std::stoi(cm[2]);
 
   std::cout << "image width: " << width << std::endl;
   std::cout << "image height: " << height << std::endl;
@@ -64,7 +77,7 @@ int main() {
   std::cout << "end of program" << std::endl;
 
   std::ofstream fout;
-  fout.open("superpixel.bin", std::ios::binary | std::ios::out);
+  fout.open(argv[2], std::ios::binary | std::ios::out);
   for (int ri = 0; ri < height; ri++) {
     for (int ci = 0; ci < width; ci++) {
 
