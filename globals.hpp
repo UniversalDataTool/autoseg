@@ -31,9 +31,11 @@ extern vector<vector<double>> distances;
 extern vector<vector<int>> clusters;
 extern int numClusters;
 extern int step;
+extern double step2;
 
 extern int maxClusters;
 extern int weightFactor;
+extern double weightFactor2;
 
 // super pixel class (numberSuperpixels)
 extern vector<int> spCls;

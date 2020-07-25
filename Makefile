@@ -55,7 +55,7 @@ assets/image-3024x4032.bin:
 	python util/create-bin-image.py ./util/image-3024x4032.jpg ./assets/image-3024x4032.bin
 
 build/test_super_pixel: setup assets/orange-320x249.bin assets/image-3024x4032.bin globals.o
-	g++ -g -o ./build/test_super_pixel	test_super_pixel.cpp globals.o colorspace/Conversion.o colorspace/ColorSpace.o
+	clang++ -g -Ofast -o ./build/test_super_pixel	test_super_pixel.cpp globals.o colorspace/Conversion.o colorspace/ColorSpace.o
 
 colorspace:
 	mkdir colorspace
@@ -68,18 +68,18 @@ colorspace:
 		mv src/* ./  && \
 		rmdir src
 	cd colorspace && \
-		clang++ -c ColorSpace.cpp && \
-		clang++ -c Comparison.cpp && \
-		clang++ -c Conversion.cpp
+		clang++ -Ofast -c ColorSpace.cpp && \
+		clang++ -Ofast -c Comparison.cpp && \
+		clang++ -Ofast -c Conversion.cpp
 	docker run -it -v $(shell pwd)/colorspace:/src seveibar/emscripten em++ -std=c++1z -c ./ColorSpace.cpp -o ./ColorSpace.bc
 	docker run -it -v $(shell pwd)/colorspace:/src seveibar/emscripten em++ -std=c++1z -c ./Comparison.cpp -o ./Comparison.bc
 	docker run -it -v $(shell pwd)/colorspace:/src seveibar/emscripten em++ -std=c++1z -c ./Conversion.cpp -o ./Conversion.bc
 
 globals.o: globals.cpp globals.hpp
-	clang++ -c globals.cpp
+	clang++ -Ofast -c globals.cpp
 
 build/test_min_cut: setup globals.o
-	clang++ -g -o ./build/test_min_cut test_min_cut.cpp globals.o colorspace/Conversion.o colorspace/ColorSpace.o
+	clang++ -Ofast -g -o ./build/test_min_cut test_min_cut.cpp globals.o colorspace/Conversion.o colorspace/ColorSpace.o
 
 build/test_polygon_fill: setup globals.o
 	g++ -g -o ./build/test_polygon_fill test_polygon_fill.cpp globals.o colorspace/Conversion.o colorspace/ColorSpace.o
@@ -97,12 +97,12 @@ test_min_cut: build/test_min_cut
 .PHONY: test_super_pixel
 test_super_pixel: build/test_super_pixel assets/image-3024x4032.bin assets/orange-320x249.bin
 	mkdir -p test-outputs
-	valgrind --tool=callgrind ./build/test_super_pixel ./assets/orange-320x249.bin ./test-outputs/orange-320x249-superpixel.bin
-	python util/read-bin-image.py ./test-outputs/orange-320x249-superpixel.bin
+	# valgrind --tool=callgrind ./build/test_super_pixel ./assets/orange-320x249.bin ./test-outputs/orange-320x249-superpixel.bin
+	# python util/read-bin-image.py ./test-outputs/orange-320x249-superpixel.bin
 
-	# 118.08 time
-	# time ./build/test_super_pixel ./assets/image-3024x4032.bin ./test-outputs/image-3024x4032-superpixel.bin
-	# python util/read-bin-image.py ./test-outputs/image-3024x4032-superpixel.bin
+	# 118.08 time w/ -O0, 7.70 w/ -Ofast, w/ compute_distance2 6.64
+	time ./build/test_super_pixel ./assets/image-3024x4032.bin ./test-outputs/image-3024x4032-superpixel.bin
+	python util/read-bin-image.py ./test-outputs/image-3024x4032-superpixel.bin
 
 .PHONY: setup
 setup: colorspace

@@ -19,9 +19,12 @@ vector<vector<double>> distances;
 vector<vector<int>> clusters;
 int numClusters;
 int step;
+double step2;
 int totalClasses = 0;
 int maxClusters = DEFAULT_MAX_CLUSTERS;
 int weightFactor = DEFAULT_WEIGHT_FACTOR;
+double weightFactor2 = static_cast<double>(DEFAULT_WEIGHT_FACTOR) *
+                       static_cast<double>(DEFAULT_WEIGHT_FACTOR);
 
 vector<ClassPoint> classPoints;
 

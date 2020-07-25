@@ -20,6 +20,56 @@ Implementation of SLIC-like algorithm. Some modifications:
 using blaze::DynamicMatrix;
 using blaze::StaticMatrix;
 
+void allocateGlobals() {
+  lmat = vector<vector<double>>(height, vector<double>(width));
+  amat = vector<vector<double>>(height, vector<double>(width));
+  bmat = vector<vector<double>>(height, vector<double>(width));
+  distances = vector<vector<double>>(height, vector<double>(width));
+  clusters = vector<vector<int>>(height, vector<int>(width));
+  step = static_cast<int>(sqrt((static_cast<double>(width) *
+                                static_cast<double>(height) / maxClusters)));
+  step2 = static_cast<double>(step) * static_cast<double>(step);
+  numClusters = (width / step) * (height / step);
+  clusterMembers = vector<double>(numClusters);
+  std::array<double, 5> emptyAr = {0, 0, 0, 0, 0};
+  centers = vector<std::array<double, 5>>(numClusters, emptyAr);
+  spAdjMap = std::unordered_map<std::pair<int, int>, double, pair_hash>();
+}
+
+void convertToLabSpace(std::vector<uint8_t> &imageFileData) {
+  for (int ri = 0; ri < height; ri++) {
+    for (int ci = 0; ci < width; ci++) {
+      ColorSpace::Rgb rgb(imageFileData[(ri * width + ci) * 4 + 0],
+                          imageFileData[(ri * width + ci) * 4 + 1],
+                          imageFileData[(ri * width + ci) * 4 + 2]);
+      ColorSpace::Lab lab;
+      rgb.To<ColorSpace::Lab>(&lab);
+      lmat[ri][ci] = lab.l;
+      amat[ri][ci] = lab.a;
+      bmat[ri][ci] = lab.b;
+    }
+  }
+}
+
+void selectInitialCenters() {
+  // std::cout << "num clusters: " << numClusters << std::endl;
+  // std::cout << "step size: " << step << std::endl;
+  for (int sri = 0; sri < height / step; sri++) {
+    for (int sci = 0; sci < width / step; sci++) {
+      int cci = sri * (width / step) + sci;
+      int ri = step * sri;
+      int ci = step * sci;
+
+      centers[cci][0] = static_cast<double>(ri);
+      centers[cci][1] = static_cast<double>(ci);
+      // TODO find local minimum
+      centers[cci][2] = lmat[ri][ci];
+      centers[cci][3] = amat[ri][ci];
+      centers[cci][4] = bmat[ri][ci];
+    }
+  }
+}
+
 double compute_distance(int cci, int ri, int ci) {
   const double centerRi = centers[cci][0];
   const double centerCi = centers[cci][1];
@@ -28,6 +78,16 @@ double compute_distance(int cci, int ri, int ci) {
                    pow(centers[cci][3] - amat[ri][ci], 2) +
                    pow(centers[cci][4] - bmat[ri][ci], 2));
   return sqrt(pow(dc / weightFactor, 2) + pow(ds / step, 2));
+}
+
+double compute_distance2(int cci, int ri, int ci) {
+  const double centerRi = centers[cci][0];
+  const double centerCi = centers[cci][1];
+  double ds2 = pow(centerRi - ri, 2) + pow(centerCi - ci, 2);
+  double dc2 = pow(centers[cci][2] - lmat[ri][ci], 2) +
+               pow(centers[cci][3] - amat[ri][ci], 2) +
+               pow(centers[cci][4] - bmat[ri][ci], 2);
+  return pow(dc2 / weightFactor2, 2) + pow(ds2 / step2, 2);
 }
 
 double cluster_color_similarity(int cci1, int cci2) {
@@ -61,7 +121,7 @@ void setPixelsToClosestClusterCenter() {
       const int minCi = blaze::max(centers[cci][1] - step, 0);
       for (int ci = minCi; ci < maxCi; ci++) {
         // TODO speedup with row-wise min?
-        const double distanceToClusterCci = compute_distance(cci, ri, ci);
+        const double distanceToClusterCci = compute_distance2(cci, ri, ci);
         if (distanceToClusterCci < distances[ri][ci]) {
           distances[ri][ci] = distanceToClusterCci;
           clusters[ri][ci] = cci;
@@ -71,82 +131,116 @@ void setPixelsToClosestClusterCenter() {
   }
 }
 
-void superpixel(std::vector<uint8_t> &imageFileData) {
-  lmat = vector<vector<double>>(height, vector<double>(width));
-  amat = vector<vector<double>>(height, vector<double>(width));
-  bmat = vector<vector<double>>(height, vector<double>(width));
-  distances = vector<vector<double>>(height, vector<double>(width));
-  clusters = vector<vector<int>>(height, vector<int>(width));
-  step = static_cast<int>(sqrt((static_cast<double>(width) *
-                                static_cast<double>(height) / maxClusters)));
-  numClusters = (width / step) * (height / step);
-  clusterMembers = vector<double>(numClusters);
+void computeNewClusterCenters() {
+  std::fill(clusterMembers.begin(), clusterMembers.end(), 1.0);
+  for (int ri = 0; ri < height; ri++) {
+    for (int ci = 0; ci < width; ci++) {
+      const int cci = clusters[ri][ci];
+      if (cci == -1)
+        continue;
+      centers[cci][0] += ri;
+      centers[cci][1] += ci;
+      centers[cci][2] += lmat[ri][ci];
+      centers[cci][3] += amat[ri][ci];
+      centers[cci][4] += bmat[ri][ci];
+      clusterMembers[cci] += 1.0;
+    }
+  }
+}
 
+void normalizeClusterCenters() {
+  // Normalize clusters
+  // TODO this should be a single matrix operation, but I couldn't figure
+  // out how to do it with blaze
+  for (int cci = 0; cci < numClusters; cci++) {
+    const double members = clusterMembers[cci];
+    centers[cci][0] /= members;
+    centers[cci][1] /= members;
+    centers[cci][2] /= members;
+    centers[cci][3] /= members;
+    centers[cci][4] /= members;
+  }
+}
+
+void assignLostPixels() {
+  // Any pixels that have a cluster of -1, set find their nearest cluster
+  for (int ri = 0; ri < height; ri++) {
+    for (int ci = 0; ci < width; ci++) {
+      if (clusters[ri][ci] == -1) {
+        // find closest cluster manually
+        double bestDist = std::numeric_limits<double>::max();
+        int bestCci = -1;
+        for (int cci = 0; cci < numClusters; cci++) {
+          const double d = compute_distance2(cci, ri, ci);
+          if (d < bestDist) {
+            bestDist = d;
+            bestCci = cci;
+          }
+        }
+        clusters[ri][ci] = bestCci;
+      }
+    }
+  }
+}
+
+void computeClusterNorms() {
   blaze::DynamicVector<double> norms =
       blaze::DynamicVector<double>(numClusters * (numClusters - 1) / 2);
+  int currentNormCci = 0;
+  for (int cci1 = 0; cci1 < numClusters - 1; cci1++) {
+    for (int cci2 = cci1 + 1; cci2 < numClusters; cci2++) {
+      norms[currentNormCci] = sqrt(pow(centers[cci1][2] - centers[cci2][2], 2) +
+                                   pow(centers[cci1][3] - centers[cci2][3], 2) +
+                                   pow(centers[cci1][4] - centers[cci2][4], 2));
+      currentNormCci++;
+    }
+  }
+  stdClusterLabNorm = blaze::stddev(norms);
+}
+
+void computeAdjacencyMap() {
+  // Compute superpixel adjacency map
+  for (int ri = 0; ri < height - 1; ri++) {
+    for (int ci = 0; ci < width - 1; ci++) {
+      const int cci = clusters[ri][ci];
+      const int adjRight = clusters[ri][ci + 1];
+      const int adjDown = clusters[ri + 1][ci];
+
+      const auto adjRightConn = adj_pair(cci, adjRight);
+      const auto adjDownConn = adj_pair(cci, adjDown);
+
+      const bool adjRightConnected =
+          spAdjMap.find(adjRightConn) != spAdjMap.end();
+      const bool adjDownConnected =
+          spAdjMap.find(adjDownConn) != spAdjMap.end();
+
+      if (!adjRightConnected && cci != adjRight) {
+        const double cs = cluster_color_similarity(cci, adjRight);
+        spAdjMap[adjRightConn] = cs;
+      }
+      if (!adjDownConnected && cci != adjDown) {
+        const double cs = cluster_color_similarity(cci, adjDown);
+        spAdjMap[adjDownConn] = cs;
+      }
+    }
+  }
+}
+
+void superpixel(std::vector<uint8_t> &imageFileData) {
+  allocateGlobals();
 
   if (verboseMode) {
     printf("width: %d, height: %d\n", width, height);
   }
 
-  for (int ri = 0; ri < height; ri++) {
-    for (int ci = 0; ci < width; ci++) {
-      ColorSpace::Rgb rgb(imageFileData[(ri * width + ci) * 4 + 0],
-                          imageFileData[(ri * width + ci) * 4 + 1],
-                          imageFileData[(ri * width + ci) * 4 + 2]);
-      ColorSpace::Lab lab;
-      rgb.To<ColorSpace::Lab>(&lab);
-      lmat[ri][ci] = lab.l;
-      amat[ri][ci] = lab.a;
-      bmat[ri][ci] = lab.b;
-    }
-  }
-
-  // std::cout << "Check first 3 colors..." << std::endl;
-  // std::cout << "l (94  ):" << lmat(0, 0) << std::endl;
-  // std::cout << "a (1.1 ):" << amat(0, 0) << std::endl;
-  // std::cout << "b (-3.9):" << bmat(0, 0) << std::endl;
-
-  // TODO fixed-size step?
-
-  std::array<double, 5> emptyAr = {0, 0, 0, 0, 0};
-  centers = vector<std::array<double, 5>>(numClusters, emptyAr);
+  convertToLabSpace(imageFileData);
 
   if (verboseMode) {
     printf("num clusters: %d\n", numClusters);
   }
 
-  // std::cout << "num clusters: " << numClusters << std::endl;
-  // std::cout << "step size: " << step << std::endl;
-  for (int sri = 0; sri < height / step; sri++) {
-    for (int sci = 0; sci < width / step; sci++) {
-      int cci = sri * (width / step) + sci;
-      int ri = step * sri;
-      int ci = step * sci;
+  selectInitialCenters();
 
-      centers[cci][0] = static_cast<double>(ri);
-      centers[cci][1] = static_cast<double>(ci);
-      // TODO find local minimum
-      centers[cci][2] = lmat[ri][ci];
-      centers[cci][3] = amat[ri][ci];
-      centers[cci][4] = bmat[ri][ci];
-    }
-  }
-  // int cci = 0;
-  // for (int ri = step / 2; ri <= height - step / 2; ri += step) {
-  //   for (int ci = step / 2; ci <= width - step / 2; ci += step) {
-  //     printf("%d\n", cci);
-  //     // if (cci > 250)
-  //     //   continue;
-  //     centers[cci][ 0] = (double)(ri);
-  //     centers[cci][ 1] = (double)(ci);
-  //     // TODO find local minimum
-  //     centers[cci][ 2] = lmat[ri][ci];
-  //     centers[cci][ 3] = amat[ri][ci];
-  //     centers[cci][ 4] = bmat[ri][ci];
-  //     cci++;
-  //   }
-  // }
   for (int iteration = 0; iteration < SLIC_ITERATIONS; iteration++) {
     if (verboseMode) {
       printf("\n\nITERATION %d\n\n", iteration);
@@ -179,116 +273,21 @@ void superpixel(std::vector<uint8_t> &imageFileData) {
 
     setPixelsToClosestClusterCenter();
 
-    // std::cout << distances << std::endl;
-    // std::cout << centers << std::endl;
+    computeNewClusterCenters();
 
-    // Compute new cluster centers
-    std::fill(clusterMembers.begin(), clusterMembers.end(), 1.0);
-    for (int ri = 0; ri < height; ri++) {
-      for (int ci = 0; ci < width; ci++) {
-        const int cci = clusters[ri][ci];
-        if (cci == -1)
-          continue;
-        centers[cci][0] += ri;
-        centers[cci][1] += ci;
-        centers[cci][2] += lmat[ri][ci];
-        centers[cci][3] += amat[ri][ci];
-        centers[cci][4] += bmat[ri][ci];
-        clusterMembers[cci] += 1.0;
-      }
-    }
-
-    // std::cout << centers << std::endl;
-
-    // Normalize clusters
-    // TODO this should be a single matrix operation, but I couldn't figure
-    // out how to do it with blaze
-    for (int cci = 0; cci < numClusters; cci++) {
-      const double members = clusterMembers[cci];
-      centers[cci][0] /= members;
-      centers[cci][1] /= members;
-      centers[cci][2] /= members;
-      centers[cci][3] /= members;
-      centers[cci][4] /= members;
-    }
-
-    // std::cout << centers << std::endl;
+    normalizeClusterCenters();
   }
 
   // Iterate over each center, set pixel to closest center
   setPixelsToClosestClusterCenter();
 
-  // Any pixels that have a cluster of -1, set find their nearest cluster
-  for (int ri = 0; ri < height; ri++) {
-    for (int ci = 0; ci < width; ci++) {
-      if (clusters[ri][ci] == -1) {
-        // find closest cluster manually
-        double bestDist = std::numeric_limits<double>::max();
-        int bestCci = -1;
-        for (int cci = 0; cci < numClusters; cci++) {
-          const double d = compute_distance(cci, ri, ci);
-          if (d < bestDist) {
-            bestDist = d;
-            bestCci = cci;
-          }
-        }
-        clusters[ri][ci] = bestCci;
-      }
-    }
-  }
+  assignLostPixels();
 
-  // Compute standard deviation for color across centers
-  // TODO unnecessary computation of stdev for X/Y
-  // blaze::DynamicVector<double> norms(numClusters);
-  // for (int cci = 0; cci < numClusters; cci++)
-  // {
-  //   norms[cci] = sqrt(
-  //       pow(centers[cci][ 2], 2) +
-  //       pow(centers[cci][ 3], 2) +
-  //       pow(centers[cci][ 4], 2));
-  // }
-  // stdClusterLabNorm = stddev(norms);
+  computeClusterNorms();
 
-  int currentNormCci = 0;
-  for (int cci1 = 0; cci1 < numClusters - 1; cci1++) {
-    for (int cci2 = cci1 + 1; cci2 < numClusters; cci2++) {
-      norms[currentNormCci] = sqrt(pow(centers[cci1][2] - centers[cci2][2], 2) +
-                                   pow(centers[cci1][3] - centers[cci2][3], 2) +
-                                   pow(centers[cci1][4] - centers[cci2][4], 2));
-      currentNormCci++;
-    }
-  }
-  stdClusterLabNorm = blaze::stddev(norms);
-  // std::cout << "std deviation: " << stdClusterLabNorm << std::endl;
   if (verboseMode) {
     printf("stdClusterLabNorm: %f\n", stdClusterLabNorm);
   }
 
-  // Compute superpixel adjacency map
-  spAdjMap = std::unordered_map<std::pair<int, int>, double, pair_hash>();
-
-  for (int ri = 0; ri < height - 1; ri++) {
-    for (int ci = 0; ci < width - 1; ci++) {
-      const int cci = clusters[ri][ci];
-      const int adjRight = clusters[ri][ci + 1];
-      const int adjDown = clusters[ri + 1][ci];
-
-      const auto adjRightConn = adj_pair(cci, adjRight);
-      const auto adjDownConn = adj_pair(cci, adjDown);
-
-      const bool adjRightConnected =
-          spAdjMap.find(adjRightConn) != spAdjMap.end();
-      const bool adjDownConnected =
-          spAdjMap.find(adjDownConn) != spAdjMap.end();
-
-      if (!adjRightConnected && cci != adjRight) {
-        const double cs = cluster_color_similarity(cci, adjRight);
-        spAdjMap[adjRightConn] = cs;
-      }
-      if (!adjDownConnected && cci != adjDown) {
-        const double cs = cluster_color_similarity(cci, adjDown);
-        spAdjMap[adjDownConn] = cs;
-      }
-    }
-  }
+  computeAdjacencyMap();
 }
