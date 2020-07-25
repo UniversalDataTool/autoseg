@@ -19,7 +19,7 @@ using namespace boost;
 // #define TEST_CLASSPOINTS 1
 
 int main() {
-  std::vector<BYTE> *imageFileData = readFile("assets/orange.bin");
+  std::vector<BYTE> *imageFileData = readFile("assets/orange-320x249.bin");
   width = 320;
   height = 249;
 
@@ -72,7 +72,7 @@ int main() {
 #endif
 
   std::ofstream fout;
-  fout.open("polygon_fill.bin", std::ios::binary | std::ios::out);
+  fout.open("polygon_fill-320x249.bin", std::ios::binary | std::ios::out);
   for (int i = 0; i < coloredMask.size(); i++) {
     fout.write((char *)&coloredMask[i], 4);
   }

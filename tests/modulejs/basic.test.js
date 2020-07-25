@@ -6,7 +6,9 @@ const range = require("lodash/range")
 
 const f = (p) => path.join(__dirname, p)
 
-const imData = Uint8Array.from(fs.readFileSync(f("../../assets/orange.bin")))
+const imData = Uint8Array.from(
+  fs.readFileSync(f("../../assets/orange-320x249.bin"))
+)
 
 async function setup() {
   while (!m.setImageSize) {
@@ -85,7 +87,7 @@ test("should be able to get a mask", async (t) => {
 
   t.assert(cppImDataUint8[0] === 255)
 
-  fs.writeFileSync(f("./mask.bin"), cppImDataUint8)
+  fs.writeFileSync(f("./mask-320x249.bin"), cppImDataUint8)
 })
 
 test("should be able to get a simple mode polygon mask", async (t) => {
@@ -98,7 +100,7 @@ test("should be able to get a simple mode polygon mask", async (t) => {
 
   m.clearClassElements()
   m.setClassColor(0, 0xff0000ff)
-  m.setClassColor(1, 0xffffffff)
+  m.setClassColor(1, 0xffff00ff)
 
   const pi1 = m.addPolygon(0)
   const pi2 = m.addPolygon(1)
@@ -132,5 +134,5 @@ test("should be able to get a simple mode polygon mask", async (t) => {
 
   t.pass("TODO for now manually confirm mask content in mask-polygon-only.bin!")
 
-  fs.writeFileSync(f("./mask-polygon-only.bin"), cppImDataUint8)
+  fs.writeFileSync(f("./mask-320x249-polygon-only.bin"), cppImDataUint8)
 })

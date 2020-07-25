@@ -20,6 +20,8 @@ Implementation of SLIC-like algorithm. Some modifications:
 using blaze::DynamicMatrix;
 using blaze::StaticMatrix;
 
+inline double pow2C(double v) { return (v * v); }
+
 void allocateGlobals() {
   lmat = vector<vector<double>>(height, vector<double>(width));
   amat = vector<vector<double>>(height, vector<double>(width));
@@ -73,21 +75,21 @@ void selectInitialCenters() {
 double compute_distance(int cci, int ri, int ci) {
   const double centerRi = centers[cci][0];
   const double centerCi = centers[cci][1];
-  double ds = sqrt(pow(centerRi - ri, 2) + pow(centerCi - ci, 2));
-  double dc = sqrt(pow(centers[cci][2] - lmat[ri][ci], 2) +
-                   pow(centers[cci][3] - amat[ri][ci], 2) +
-                   pow(centers[cci][4] - bmat[ri][ci], 2));
-  return sqrt(pow(dc / weightFactor, 2) + pow(ds / step, 2));
+  double ds = sqrt(pow2C(centerRi - ri) + pow2C(centerCi - ci));
+  double dc = sqrt(pow2C(centers[cci][2] - lmat[ri][ci]) +
+                   pow2C(centers[cci][3] - amat[ri][ci]) +
+                   pow2C(centers[cci][4] - bmat[ri][ci]));
+  return sqrt(pow2C(dc / weightFactor) + pow2C(ds / step));
 }
 
 double compute_distance2(int cci, int ri, int ci) {
   const double centerRi = centers[cci][0];
   const double centerCi = centers[cci][1];
-  double ds2 = pow(centerRi - ri, 2) + pow(centerCi - ci, 2);
-  double dc2 = pow(centers[cci][2] - lmat[ri][ci], 2) +
-               pow(centers[cci][3] - amat[ri][ci], 2) +
-               pow(centers[cci][4] - bmat[ri][ci], 2);
-  return pow(dc2 / weightFactor2, 2) + pow(ds2 / step2, 2);
+  double ds2 = pow2C(centerRi - ri) + pow2C(centerCi - ci);
+  double dc2 = pow2C(centers[cci][2] - lmat[ri][ci]) +
+               pow2C(centers[cci][3] - amat[ri][ci]) +
+               pow2C(centers[cci][4] - bmat[ri][ci]);
+  return pow2C(dc2 / weightFactor2) + pow2C(ds2 / step2);
 }
 
 double cluster_color_similarity(int cci1, int cci2) {

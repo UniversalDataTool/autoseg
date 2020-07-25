@@ -3,6 +3,7 @@ build/module.js: setup globals.bc
 	# -Os \
 	# -s TOTAL_MEMORY=100MB
 	docker run -it -v $(shell pwd):/src seveibar/emscripten em++ \
+		-O3 -ffast-math \
 		-std=c++1z -I/usr/local/include --bind \
 		-o build/module.js ./module.cpp \
 		-s MODULARIZE=1 \
@@ -13,6 +14,7 @@ build/module.js: setup globals.bc
 
 	# Create separate node version
 	docker run -it -v $(shell pwd):/src seveibar/emscripten em++ \
+		-O3 -ffast-math \
 		-std=c++1z -I/usr/local/include --bind \
 		-o build/node.js ./module.cpp \
 		-s MODULARIZE=1 \
@@ -31,6 +33,7 @@ build/module.js: setup globals.bc
 .PHONY: debug_build/module.js
 debug_build/module.js: setup globals.bc
 	docker run -it -v $(shell pwd):/src seveibar/emscripten em++ \
+		-O3 -ffast-math \
 		-std=c++1z -I/usr/local/include --bind -s "EXTRA_EXPORTED_RUNTIME_METHODS=['getValue']" \
 		-o build/module.js ./module.cpp \
 		-s ALLOW_MEMORY_GROWTH=1 -s ASSERTIONS=1 -s SAFE_HEAP=1 -s DETERMINISTIC=1 -s DEMANGLE_SUPPORT=1 \
@@ -43,8 +46,8 @@ globals.bc: globals.cpp globals.hpp
 
 test_modulejs: debug_build/module.js
 	npx ava --verbose ./tests/modulejs/basic.test.js
-	python util/read-bin-image.py tests/modulejs/mask.bin
-	python util/read-bin-image.py tests/modulejs/mask-polygon-only.bin
+	python util/read-bin-image.py tests/modulejs/mask-320x249.bin
+	python util/read-bin-image.py tests/modulejs/mask-320x249-polygon-only.bin
 
 assets/orange-320x249.bin:
 	mkdir -p assets
@@ -87,7 +90,7 @@ build/test_polygon_fill: setup globals.o
 .PHONY: test_polygon_fill
 test_polygon_fill: build/test_polygon_fill
 	./build/test_polygon_fill
-	python util/read-bin-image.py ./polygon_fill.bin
+	python util/read-bin-image.py ./polygon_fill-320x249.bin
 
 .PHONY: test_min_cut
 test_min_cut: build/test_min_cut
