@@ -14,13 +14,15 @@ classifications. Autoseg was originally created by [Severin Ibarluzea](https://t
 ## Example Inputs -> Output
 
 ### Input Image
+
 ![Input Image](https://user-images.githubusercontent.com/1910070/88559148-75011400-cffa-11ea-912e-e4d53a64dc8d.png)
 
 ### Input Polygon
+
 ![Input Image Polygon](https://user-images.githubusercontent.com/1910070/88559149-7599aa80-cffa-11ea-9d7b-34f4190750f8.png)
 
-
 ### Output Mask
+
 ![Output Mask](https://user-images.githubusercontent.com/1910070/88559147-75011400-cffa-11ea-9ac7-d99e7bc77646.png)
 
 ## API
@@ -50,5 +52,7 @@ canvasContext.putImageData(maskImageData, 0, 0)
 ```javascript
 await autoseg.setConfig({
   maxClusters: 1000,
+  classNames: ["dog", "cat"],
+  classColors: [0xffffffff, 0xff000000],
 })
 ```

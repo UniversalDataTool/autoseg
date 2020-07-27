@@ -15,7 +15,7 @@
 
       const blob = new Blob(
         [
-          "importScripts('https://unpkg.com/autoseg@0.0.5/webworker-worker-bundle.js')",
+          "importScripts('https://unpkg.com/autoseg@0.0.7/webworker-worker-bundle.js')",
         ],
         { type: "application/javascript" }
       )
@@ -90,7 +90,7 @@
           const maskImageData = await window.autoseg.getMask([
             {
               regionType: "polygon",
-              cls: 0,
+              classification: 0,
               points: [
                 {
                   x: 0.48117539026629935,
@@ -156,7 +156,7 @@
             },
             {
               regionType: "polygon",
-              cls: 1,
+              classification: 1,
               points: [
                 {
                   x: 0.3581267217630854,
@@ -206,7 +206,7 @@
             },
             {
               regionType: "polygon",
-              cls: 1,
+              classification: 1,
               points: [
                 {
                   x: 0.7658402203856749,

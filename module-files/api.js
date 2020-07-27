@@ -86,20 +86,20 @@ module.exports = (WASM_INIT) => {
       if (r.regionType !== "bounding-box") return r
       return {
         regionType: "polygon",
-        cls: r.cls,
+        classification: r.classification,
         points: [
-          { x: r.x, y: r.y },
-          { x: r.x + r.w, y: r.y },
-          { x: r.x + r.w, y: r.y + r.h },
-          { x: r.x, y: r.y + r.h },
+          { x: r.centerX - r.width / 2, y: r.centerY - r.height / 2 },
+          { x: r.centerX + r.width / 2, y: r.centerY - r.height / 2 },
+          { x: r.centerX + r.width / 2, y: r.centerY + r.height / 2 },
+          { x: r.centerX - r.width / 2, y: r.centerY + r.height / 2 },
         ],
       }
     })
     for (let object of objects) {
       const clsIndex =
-        typeof object.cls === "number"
-          ? object.cls
-          : mod.config.classNames.indexOf(object.cls)
+        typeof object.classification === "number"
+          ? object.classification
+          : mod.config.classNames.indexOf(object.classification)
       if (clsIndex > mod.config.classColors.length || clsIndex === -1) {
         continue
       }
