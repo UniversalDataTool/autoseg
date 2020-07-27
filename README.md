@@ -8,7 +8,7 @@ classifications. Autoseg was originally created by [Severin Ibarluzea](https://t
 - Simple API
 - WebWorker background computation
 - Deterministic, suitable for mask compression
-- Fast. WebAssembly compiled from state of the art implementations of SLIC superpixeling and graph cut
+- Fast. WebAssembly compiled from state of the art C++ implementations of SLIC superpixeling and graph cut
 - Fully compliant with the [Universal Data Tool](https://github.com/UniversalDataTool/universal-data-tool) and [UDT Format](https://github.com/UniversalDataTool/udt-format)
 
 ## Example Inputs -> Output
