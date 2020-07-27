@@ -1,6 +1,6 @@
 {
   "name": "autoseg",
-  "version": "0.0.4",
+  "version": "0.0.6",
   "main": "web.js",
   "repository": "git@github.com:UniversalDataTool/autoseg.git",
   "author": "seveibar <seveibar@gmail.com>",
@@ -10,6 +10,7 @@
     "@typescript-eslint/parser": "2.x",
     "ava": "^3.9.0",
     "babel-eslint": "10.x",
+    "cross-blob": "^2.0.0",
     "eslint": "6.x",
     "eslint-config-react-app": "^5.2.1",
     "eslint-plugin-flowtype": "4.x",

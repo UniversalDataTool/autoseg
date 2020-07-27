@@ -2,10 +2,18 @@ const { version } = require("./package.json")
 let lastRequestId = -1
 
 function wrapAutoseg(urlOrVersion) {
-  if (urlOrVersion.match(/[0-9]+\.[0-9]+\.[0-9]/)) {
+  if (urlOrVersion.match(/^[0-9]+\.[0-9]+\.[0-9]+$/)) {
     urlOrVersion = `https://unpkg.com/autoseg@${urlOrVersion}/webworker-worker-bundle.js`
   }
-  const webworker = new Worker(urlOrVersion)
+
+  const blob = new Blob([`importScripts('${urlOrVersion}')`], {
+    type: "application/javascript",
+  })
+  const blobUrl = window.URL.createObjectURL(blob)
+  const webworker = new Worker(blobUrl)
+
+  // This is blocked by a unfixable CORS error
+  // const webworker = new Worker(urlOrVersion)
 
   const functions = ["setConfig", "loadImage", "getMask"]
 

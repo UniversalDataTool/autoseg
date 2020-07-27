@@ -1,0 +1,242 @@
+<html>
+  <!-- <script type="text/javascript" src="../../dist/webworker-worker.js"></script> -->
+  <body>
+    <p>
+      To run this file, start a server in the autoseg directory, e.g. "python -m
+      http.server") then navigate to
+      http://localhost:8000/tests/webworker/webworker.html
+    </p>
+    <img
+      id="img"
+      src="https://s3.amazonaws.com/datasets.workaround.online/hands/01cb3085-3d42-4186-b52c-dcc52d9beb4c.mp4_frame012.jpg"
+    />
+    <script type="text/javascript">
+      let lastRequestId = -1
+
+      const blob = new Blob(
+        [
+          "importScripts('https://unpkg.com/autoseg@0.0.5/webworker-worker-bundle.js')",
+        ],
+        { type: "application/javascript" }
+      )
+      const blobUrl = window.URL.createObjectURL(blob)
+      const webworker = new Worker(blobUrl)
+
+      webworker.addEventListener("message", console.log)
+      const functions = ["setConfig", "loadImage", "getMask"]
+
+      const obj = {}
+
+      for (const functionName of functions) {
+        const id = lastRequestId++
+        obj[functionName] = (...args) => {
+          webworker.postMessage({ functionName, args, id })
+          return new Promise((resolve, reject) => {
+            const possibleResponse = (e) => {
+              const { data } = e
+              if (!data) return
+              if (data.id === id) {
+                webworker.removeEventListener("message", possibleResponse)
+                if (data.error) {
+                  reject(new Error(data.error))
+                } else {
+                  // There's some issue with the serialization of the ImageData
+                  // for getMask
+                  if (functionName === "getMask") {
+                    const { data: pixels, width, height } = data.returnValue
+                    resolve(new ImageData(pixels, width, height))
+                  } else {
+                    resolve(data.returnValue)
+                  }
+                }
+              }
+            }
+            webworker.addEventListener("message", possibleResponse)
+          })
+        }
+      }
+
+      window.autoseg = obj
+
+      // -----------------------------
+      // APPLICATION CODE
+      // -----------------------------
+
+      const img = document.getElementById("img")
+      img.crossOrigin = "anonymous"
+
+      img.onload = () => {
+        const canvas = document.createElement("canvas")
+        canvas.width = img.naturalWidth
+        canvas.height = img.naturalHeight
+        document.body.appendChild(canvas)
+        const context = canvas.getContext("2d")
+
+        context.drawImage(img, 0, 0)
+
+        const imageData = context.getImageData(
+          0,
+          0,
+          img.naturalWidth,
+          img.naturalHeight
+        )
+
+        async function doStuff() {
+          await window.autoseg.setConfig({
+            // mode: "simple",
+            maxClusters: 10000,
+          })
+          await window.autoseg.loadImage(imageData)
+          const maskImageData = await window.autoseg.getMask([
+            {
+              regionType: "polygon",
+              cls: 0,
+              points: [
+                {
+                  x: 0.48117539026629935,
+                  y: 0.9876543209876543,
+                },
+                {
+                  x: 0.4986225895316804,
+                  y: 0.5126007550249975,
+                },
+                {
+                  x: 0.4701561065197429,
+                  y: 0.3803693500663198,
+                },
+                {
+                  x: 0.43067033976124885,
+                  y: 0.3624119987756351,
+                },
+                {
+                  x: 0.40955004591368227,
+                  y: 0.3101724313845526,
+                },
+                {
+                  x: 0.32966023875114786,
+                  y: 0.31833486378940923,
+                },
+                {
+                  x: 0.3076216712580349,
+                  y: 0.28405264768901134,
+                },
+                {
+                  x: 0.37373737373737376,
+                  y: 0.262830323436384,
+                },
+                {
+                  x: 0.4214876033057851,
+                  y: 0.1828384858687889,
+                },
+                {
+                  x: 0.3149678604224059,
+                  y: 0.17957351290684623,
+                },
+                {
+                  x: 0.317722681359045,
+                  y: 0.15671870217324763,
+                },
+                {
+                  x: 0.42056932966023874,
+                  y: 0.14202632384450567,
+                },
+                {
+                  x: 0.480257116620753,
+                  y: 0.21385572900724417,
+                },
+                {
+                  x: 0.5528007346189164,
+                  y: 0.4244464850525457,
+                },
+                {
+                  x: 0.6776859504132231,
+                  y: 0.966431996735027,
+                },
+              ],
+            },
+            {
+              regionType: "polygon",
+              cls: 1,
+              points: [
+                {
+                  x: 0.3581267217630854,
+                  y: 0.9762269156208551,
+                },
+                {
+                  x: 0.41597796143250687,
+                  y: 0.435873890419345,
+                },
+                {
+                  x: 0.26905417814508725,
+                  y: 0.3787368635853484,
+                },
+                {
+                  x: 0.2892561983471074,
+                  y: 0.2660952963983267,
+                },
+                {
+                  x: 0.36455463728191,
+                  y: 0.22528313437404346,
+                },
+                {
+                  x: 0.2910927456382002,
+                  y: 0.20732578308335883,
+                },
+                {
+                  x: 0.24517906336088155,
+                  y: 0.1599836751351903,
+                },
+                {
+                  x: 0.4361799816345271,
+                  y: 0.019589837771655953,
+                },
+                {
+                  x: 0.24058769513314968,
+                  y: 0.024487297214569943,
+                },
+                {
+                  x: 0.04040404040404041,
+                  y: 0.04244464850525457,
+                },
+                {
+                  x: 0.011937557392102846,
+                  y: 0.9370472400775431,
+                },
+              ],
+            },
+            {
+              regionType: "polygon",
+              cls: 1,
+              points: [
+                {
+                  x: 0.7658402203856749,
+                  y: 0.971329456177941,
+                },
+                {
+                  x: 0.6749311294765841,
+                  y: 0.6203448627691052,
+                },
+                {
+                  x: 0.45362718089990817,
+                  y: 0.03101724313845526,
+                },
+                {
+                  x: 0.9623507805325987,
+                  y: 0.06856443220079583,
+                },
+                {
+                  x: 0.9338842975206612,
+                  y: 0.9647995102540557,
+                },
+              ],
+            },
+          ])
+          context.putImageData(maskImageData, 0, 0)
+        }
+        doStuff().catch((err) => {
+          console.error(err)
+        })
+      }
+    </script>
+  </body>
+</html>
