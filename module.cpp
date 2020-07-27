@@ -18,7 +18,7 @@ bool simpleMode = false;
 
 void setImageSize(int w, int h) {
   if (!loggedVersion) {
-    printf("mmgc1_0.0.2\n");
+    printf("autoseg_0.1\n");
     loggedVersion = true;
   }
   image = std::make_shared<std::vector<uint8_t>>(w * h * 4);
@@ -66,7 +66,9 @@ void computeMasks() {
     }
     prepareForMinCuts();
     for (int i = 0; i < totalClasses; i++) {
-      printf("running min cut for cls: %d\n", i);
+      if (verboseMode) {
+        printf("running min cut for cls: %d\n", i);
+      }
       minCutCls(i);
     }
     if (verboseMode) {

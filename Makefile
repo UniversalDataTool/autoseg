@@ -23,11 +23,18 @@ build/module.js: setup globals.bc
 		-s ALLOW_MEMORY_GROWTH=1 \
 		./globals.bc ./colorspace/ColorSpace.bc ./colorspace/Comparison.bc ./colorspace/Conversion.bc
 
-	rm -f test-module/module.js
-	rm -f test-module/node.js
-	cp build/module.js test-module/module.js
-	cp build/node.js test-module/node.js
-	cd test-module && npm version patch && npm publish
+	rm -rf ./module
+	mkdir -p ./module
+	cp build/module.js module/module-wasm-bundle.js
+	cp build/node.js module/node-wasm-bundle.js
+	cp package.json ./module/package.json
+	cp yarn.lock ./module/yarn.lock
+	cp ./module-files/* ./module
+	cp ./module-files/node.js ./module/web.js
+
+	sed -i 's/node-wasm-bundle/module-wasm-bundle/g' ./module/web.js
+
+	# cd module && npm version patch && npm publish
 
 
 .PHONY: debug_build/module.js
@@ -85,7 +92,7 @@ build/test_min_cut: setup globals.o
 	clang++ -Ofast -g -o ./build/test_min_cut test_min_cut.cpp globals.o colorspace/Conversion.o colorspace/ColorSpace.o
 
 build/test_polygon_fill: setup globals.o
-	g++ -g -o ./build/test_polygon_fill test_polygon_fill.cpp globals.o colorspace/Conversion.o colorspace/ColorSpace.o
+	clang++ -Ofast -g -o ./build/test_polygon_fill test_polygon_fill.cpp globals.o colorspace/Conversion.o colorspace/ColorSpace.o
 
 .PHONY: test_polygon_fill
 test_polygon_fill: build/test_polygon_fill
