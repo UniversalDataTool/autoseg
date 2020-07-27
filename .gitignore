@@ -19,3 +19,4 @@ test-module
 node_modules
 callgrind*
 module
+.cache

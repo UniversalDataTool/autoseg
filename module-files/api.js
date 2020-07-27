@@ -69,7 +69,7 @@ module.exports = (WASM_INIT) => {
     wasm.setSimpleMode(mod.config.mode === "simple")
     wasm.setMaxClusters(mod.config.maxClusters)
     wasm.setImageSize(imageData.width, imageData.height)
-    mod.config.imageSize = { width: imageData.width, height: imageData.height }
+    mod.imageSize = { width: imageData.width, height: imageData.height }
     for (let i = 0; i < mod.config.classColors.length; i++) {
       wasm.setClassColor(i, mod.config.classColors[i])
     }
@@ -80,7 +80,7 @@ module.exports = (WASM_INIT) => {
   })
   mod.getMask = eventuallyResolve(async (objects) => {
     wasm.clearClassElements()
-    const { width, height } = mod.config.imageSize
+    const { width, height } = mod.imageSize
     // convert bounding boxes to polygons
     objects = objects.map((r) => {
       if (r.regionType !== "bounding-box") return r
@@ -128,8 +128,8 @@ module.exports = (WASM_INIT) => {
 
           wasm.addClassPoint(
             clsIndex,
-            Math.floor(y * mod.config.height),
-            Math.floor(x * mod.config.width)
+            Math.floor(y * mod.imageSize.height),
+            Math.floor(x * mod.imageSize.width)
           )
           break
         }
@@ -138,7 +138,6 @@ module.exports = (WASM_INIT) => {
         }
       }
     }
-
     wasm.computeMasks()
     const maskAddress = wasm.getColoredMask()
     const cppImDataUint8 = new Uint8ClampedArray(

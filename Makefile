@@ -30,9 +30,8 @@ build/module.js: setup globals.bc
 	cp package.json ./module/package.json
 	cp yarn.lock ./module/yarn.lock
 	cp ./module-files/* ./module
-	cp ./module-files/node.js ./module/web.js
 
-	sed -i 's/node-wasm-bundle/module-wasm-bundle/g' ./module/web.js
+	parcel build ./module/webworker-worker.js -d module -o /webworker-worker-bundle.js
 
 	# cd module && npm version patch && npm publish
 
