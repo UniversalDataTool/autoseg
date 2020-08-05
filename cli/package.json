@@ -1,11 +1,11 @@
 {
   "name": "autoseg-cli",
-  "version": "0.0.1",
+  "version": "0.0.3",
   "main": "cli.js",
   "author": "Severin Ibarluzaea",
   "license": "MIT",
   "bin": {
-    "autoseg": "./bin/cli.js"
+    "autoseg": "./bin/autoseg"
   },
   "dependencies": {
     "autoseg": "^0.0.8",
