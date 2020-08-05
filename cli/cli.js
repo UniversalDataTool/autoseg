@@ -8,12 +8,23 @@ const mkdirp = require("mkdirp")
 
 const { argv } = yargs
   .usage("Usage: $0 path/to/dataset.udt.json -o output-masks-dir")
+  .option("use-sample-number", {
+    describe:
+      "Use the number of the sample as the mask filename (mask0001.png, etc.) ",
+  })
+  .option("output-dir", {
+    alias: "o",
+    describe: "Output directory for masks",
+  })
   .demandOption(["o"])
 
 const {
   _: [pathToFile],
-  o: outputDirectory,
+  outputDir,
+  useSampleNumber,
 } = argv
+
+console.log(argv)
 
 async function main() {
   const ds = JSON.parse(fs.readFileSync(pathToFile))
@@ -26,9 +37,9 @@ async function main() {
 
   autoseg.setConfig(config)
 
-  await mkdirp(outputDirectory)
+  await mkdirp(outputDir)
 
-  for (const { imageUrl, annotation } of ds.samples) {
+  for (const [sampleIndex, { imageUrl, annotation }] of ds.samples.entries()) {
     const fileName = imageUrl.split("/").slice(-1)[0]
     const destPath = `/tmp/${fileName}`
     const fileBuffer = await download(imageUrl)
@@ -41,7 +52,14 @@ async function main() {
     const mask = await autoseg.getMask(annotation)
     const pngBuffer = png.encode(mask)
 
-    fs.writeFileSync(`${outputDirectory}/${fileName}`, pngBuffer)
+    fs.writeFileSync(
+      `${outputDir}/${
+        useSampleNumber
+          ? `mask${sampleIndex.toString().padStart(6, "0")}`
+          : fileName
+      }`,
+      pngBuffer
+    )
   }
 }
 
