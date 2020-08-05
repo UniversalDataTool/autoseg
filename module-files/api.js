@@ -95,6 +95,10 @@ module.exports = (WASM_INIT) => {
         ],
       }
     })
+
+    const clampX = (x) => (x > width ? width - 1 : x < 0 ? 0 : x)
+    const clampY = (y) => (y > height ? height - 1 : y < 0 ? 0 : y)
+
     for (let object of objects) {
       const clsIndex =
         typeof object.classification === "number"
@@ -113,10 +117,10 @@ module.exports = (WASM_INIT) => {
             points[(i + 1) % points.length],
           ])
           for (const [p1, p2] of pointPairs) {
-            const ri1 = Math.round(p1.y * height)
-            const ci1 = Math.round(p1.x * width)
-            const ri2 = Math.round(p2.y * height)
-            const ci2 = Math.round(p2.x * width)
+            const ri1 = clampY(Math.round(p1.y * height))
+            const ci1 = clampX(Math.round(p1.x * width))
+            const ri2 = clampY(Math.round(p2.y * height))
+            const ci2 = clampX(Math.round(p2.x * width))
             wasm.addLineToPolygon(pi, ri1, ci1, ri2, ci2)
           }
           break
@@ -128,8 +132,8 @@ module.exports = (WASM_INIT) => {
 
           wasm.addClassPoint(
             clsIndex,
-            Math.floor(y * mod.imageSize.height),
-            Math.floor(x * mod.imageSize.width)
+            clampY(Math.floor(y * mod.imageSize.height)),
+            clampX(Math.floor(x * mod.imageSize.width))
           )
           break
         }

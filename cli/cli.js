@@ -28,8 +28,12 @@ async function main() {
   const ds = JSON.parse(fs.readFileSync(pathToFile))
 
   const config = {
+    mode: "simple",
     ...ds.interface.autoSegmentationEngine,
-    classNames: ["background"].concat(
+    classNames: (ds.interface.labels[0] !== "background"
+      ? ["background"]
+      : []
+    ).concat(
       ds.interface.labels.map((l) => (typeof l === "string" ? l : l.id))
     ),
   }
@@ -40,7 +44,6 @@ async function main() {
 
   for (const [sampleIndex, { imageUrl, annotation }] of ds.samples.entries()) {
     const fileName = imageUrl.split("/").slice(-1)[0]
-    const destPath = `/tmp/${fileName}`
     const fileBuffer = await download(imageUrl)
 
     const imdata = await new Promise((resolve) =>

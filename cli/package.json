@@ -1,6 +1,6 @@
 {
   "name": "autoseg-cli",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "main": "cli.js",
   "author": "Severin Ibarluzaea",
   "license": "MIT",
