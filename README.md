@@ -34,6 +34,18 @@ npm install -g autoseg-cli
 
 # This will output a bunch of image pngs for the masks of a udt file
 autoseg some_file.udt.json -o output-directory
+
+
+autoseg --help
+
+# Usage: autoseg path/to/dataset.udt.json -o output-masks-dir
+#
+# Options:
+#   --help               Show help                                       [boolean]
+#   --version            Show version number                             [boolean]
+#   --use-sample-number  Use the number of the sample as the mask filename
+#                       (mask0001.png, etc.)
+#   --output-dir, -o     Output directory for masks                     [required]
 ```
 
 ## API
