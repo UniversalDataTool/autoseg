@@ -24,12 +24,11 @@ const {
   useSampleNumber,
 } = argv
 
-console.log(argv)
-
 async function main() {
   const ds = JSON.parse(fs.readFileSync(pathToFile))
 
   const config = {
+    ...ds.interface.autoSegmentationEngine,
     classNames: ["background"].concat(
       ds.interface.labels.map((l) => (typeof l === "string" ? l : l.id))
     ),
@@ -55,8 +54,8 @@ async function main() {
     fs.writeFileSync(
       `${outputDir}/${
         useSampleNumber
-          ? `mask${sampleIndex.toString().padStart(6, "0")}`
-          : fileName
+          ? `mask${sampleIndex.toString().padStart(6, "0")}.png`
+          : fileName.split(".")[0] + ".png"
       }`,
       pngBuffer
     )
