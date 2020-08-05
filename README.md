@@ -25,6 +25,12 @@ classifications. Autoseg was originally created by [Severin Ibarluzea](https://t
 
 ![Output Mask](https://user-images.githubusercontent.com/1910070/88559147-75011400-cffa-11ea-9ac7-d99e7bc77646.png)
 
+## CLI
+
+```bash
+autoseg some_file.udt.json -o output-directory
+```
+
 ## API
 
 ```javascript
