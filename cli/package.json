@@ -4,6 +4,10 @@
   "main": "cli.js",
   "author": "Severin Ibarluzaea",
   "license": "MIT",
+  "main": "cli.js",
+  "bin": {
+    "autoseg": "./bin/cli.js"
+  },
   "dependencies": {
     "autoseg": "^0.0.8",
     "download": "^8.0.0",

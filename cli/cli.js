@@ -29,7 +29,6 @@ async function main() {
   await mkdirp(outputDirectory)
 
   for (const { imageUrl, annotation } of ds.samples) {
-    // console.log({ annotation })
     const fileName = imageUrl.split("/").slice(-1)[0]
     const destPath = `/tmp/${fileName}`
     const fileBuffer = await download(imageUrl)
