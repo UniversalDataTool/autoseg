@@ -1,6 +1,6 @@
 {
   "name": "autoseg",
-  "version": "0.0.8",
+  "version": "0.0.9",
   "main": "web.js",
   "repository": "git@github.com:UniversalDataTool/autoseg.git",
   "author": "seveibar <seveibar@gmail.com>",
