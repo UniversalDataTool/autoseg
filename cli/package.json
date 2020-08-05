@@ -4,7 +4,6 @@
   "main": "cli.js",
   "author": "Severin Ibarluzaea",
   "license": "MIT",
-  "main": "cli.js",
   "bin": {
     "autoseg": "./bin/cli.js"
   },
@@ -13,6 +12,7 @@
     "download": "^8.0.0",
     "fast-png": "^5.0.2",
     "get-image-data": "^5.0.0",
+    "jimp": "^0.14.0",
     "mkdirp": "^1.0.4",
     "sharp": "^0.25.4",
     "yargs": "^15.4.1"
