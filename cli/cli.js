@@ -5,6 +5,7 @@ const image = require("get-image-data/native")
 const autoseg = require("autoseg/node")
 const png = require("fast-png")
 const mkdirp = require("mkdirp")
+const cliProgress = require("cli-progress")
 
 const { argv } = yargs
   .usage("Usage: $0 path/to/dataset.udt.json -o output-masks-dir")
@@ -42,7 +43,13 @@ async function main() {
 
   await mkdirp(outputDir)
 
+  const bar1 = new cliProgress.SingleBar({}, cliProgress.Presets.shades_classic)
+
   for (const [sampleIndex, { imageUrl, annotation }] of ds.samples.entries()) {
+    if (sampleIndex >= 1) {
+      if (sampleIndex === 1) bar1.start(ds.samples.length, 0)
+      bar1.update(sampleIndex)
+    }
     const fileName = imageUrl.split("/").slice(-1)[0]
     const fileBuffer = await download(imageUrl)
 
@@ -63,10 +70,8 @@ async function main() {
       pngBuffer
     )
   }
+  bar1.stop()
+  process.exit(1)
 }
 
 main()
-
-// const autoseg = require("./module")
-
-// autoseg.loadImage("")

@@ -362,10 +362,10 @@ are-we-there-yet@~1.1.2:
     delegates "^1.0.0"
     readable-stream "^2.0.6"
 
-autoseg@^0.0.8:
-  version "0.0.8"
-  resolved "https://registry.yarnpkg.com/autoseg/-/autoseg-0.0.8.tgz#30e900afd41db964c5cdaf93f322211548444620"
-  integrity sha512-Kf6qQXiaxe+J1DrNP4dfWH92tRZ9MMwaO06TtzfKxBR/wtlC745aTP3YmKAP/a2ikpIfPKz9Hf6yR2Y7SeVagg==
+autoseg@^0.0.10:
+  version "0.0.10"
+  resolved "https://registry.yarnpkg.com/autoseg/-/autoseg-0.0.10.tgz#2728a88e79a06a32e823610a3a60b0a866202570"
+  integrity sha512-HGkvc6oLGHB21NQJVi51JPTLdGdkW6c3d5GTk9IkXYnH0FyK9nvsz7hiTL9VOusUFu+sbQtlb2UNH5esfRPy7w==
 
 base64-js@^1.0.2:
   version "1.3.1"
@@ -458,6 +458,14 @@ chownr@^2.0.0:
   resolved "https://registry.yarnpkg.com/chownr/-/chownr-2.0.0.tgz#15bfbe53d2eab4cf70f18a8cd68ebe5b3cb1dece"
   integrity sha512-bIomtDF5KGpdogkLd9VspvFzk9KfpyyGlS8YFVZl7TGPBHL5snIOnxeshwVgPteQ9b4Eydl+pVbIyE1DcvCWgQ==
 
+cli-progress@^3.8.2:
+  version "3.8.2"
+  resolved "https://registry.yarnpkg.com/cli-progress/-/cli-progress-3.8.2.tgz#abaf1fc6d6401351f16f068117a410554a0eb8c7"
+  integrity sha512-qRwBxLldMSfxB+YGFgNRaj5vyyHe1yMpVeDL79c+7puGujdKJHQHydgqXDcrkvQgJ5U/d3lpf6vffSoVVUftVQ==
+  dependencies:
+    colors "^1.1.2"
+    string-width "^4.2.0"
+
 cliui@^6.0.0:
   version "6.0.0"
   resolved "https://registry.yarnpkg.com/cliui/-/cliui-6.0.0.tgz#511d702c0c4e41ca156d7d0e96021f23e13225b1"
@@ -518,6 +526,11 @@ color@^3.1.2:
   dependencies:
     color-convert "^1.9.1"
     color-string "^1.5.2"
+
+colors@^1.1.2:
+  version "1.4.0"
+  resolved "https://registry.yarnpkg.com/colors/-/colors-1.4.0.tgz#c50491479d4c1bdaed2c9ced32cf7c7dc2360f78"
+  integrity sha512-a+UqTh4kgZg/SlGvfbzDHpgRu7AAQOmmqRHJnxhRZICKFUT91brVhNNt58CMWU9PsBbv3PDCZUHbVxuDiH2mtA==
 
 commander@^2.8.1:
   version "2.20.3"

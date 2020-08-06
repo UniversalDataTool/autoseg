@@ -1,6 +1,6 @@
 {
   "name": "autoseg-cli",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "main": "cli.js",
   "author": "Severin Ibarluzaea",
   "license": "MIT",
@@ -8,7 +8,8 @@
     "autoseg": "./bin/autoseg"
   },
   "dependencies": {
-    "autoseg": "^0.0.8",
+    "autoseg": "^0.0.10",
+    "cli-progress": "^3.8.2",
     "download": "^8.0.0",
     "fast-png": "^5.0.2",
     "get-image-data": "^5.0.0",
