@@ -111,17 +111,24 @@ module.exports = (WASM_INIT) => {
       switch (object.regionType) {
         case "polygon": {
           const { points } = object
-          const pi = wasm.addPolygon(clsIndex)
           const pointPairs = points.map((p, i) => [
             p,
             points[(i + 1) % points.length],
           ])
+          const linesToAdd = []
           for (const [p1, p2] of pointPairs) {
             const ri1 = clampY(Math.round(p1.y * height))
             const ci1 = clampX(Math.round(p1.x * width))
             const ri2 = clampY(Math.round(p2.y * height))
             const ci2 = clampX(Math.round(p2.x * width))
-            wasm.addLineToPolygon(pi, ri1, ci1, ri2, ci2)
+            if (ri1 === ri2 && ci1 === ci2) continue
+            linesToAdd.push({ ri1, ci1, ri2, ci2 })
+          }
+          if (linesToAdd.length >= 3) {
+            const pi = wasm.addPolygon(clsIndex)
+            for (const { ri1, ci1, ri2, ci2 } of linesToAdd) {
+              wasm.addLineToPolygon(pi, ri1, ci1, ri2, ci2)
+            }
           }
           break
         }
