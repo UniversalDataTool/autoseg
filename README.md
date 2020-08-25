@@ -30,7 +30,7 @@ classifications. Autoseg was originally created by [Severin Ibarluzea](https://t
 Make sure to format your file in the [\*.udt.json format](https://github.com/UniversalDataTool/udt-format).
 
 ```bash
-npm install -g autoseg-cli
+npm install -g autoseg
 
 # This will output a bunch of image pngs for the masks of a udt file
 autoseg some_file.udt.json -o output-directory
