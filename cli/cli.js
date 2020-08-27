@@ -57,21 +57,25 @@ async function main() {
       image(fileBuffer, (err, info) => resolve(info))
     )
 
-    await autoseg.loadImage(imdata)
-    const mask = await autoseg.getMask(annotation)
-    const pngBuffer = png.encode(mask)
+    try {
+      await autoseg.loadImage(imdata)
+      const mask = await autoseg.getMask(annotation)
+      const pngBuffer = png.encode(mask)
 
-    fs.writeFileSync(
-      `${outputDir}/${
-        useSampleNumber
-          ? `mask${sampleIndex.toString().padStart(6, "0")}.png`
-          : fileName.split(".")[0] + ".png"
-      }`,
-      pngBuffer
-    )
+      fs.writeFileSync(
+        `${outputDir}/${
+          useSampleNumber
+            ? `mask${sampleIndex.toString().padStart(6, "0")}.png`
+            : fileName.split(".")[0] + ".png"
+        }`,
+        pngBuffer
+      )
+    } catch (e) {
+      console.log(`error processing samples[${sampleIndex}]`, e.toString())
+    }
   }
   bar1.stop()
-  process.exit(1)
+  process.exit(0)
 }
 
 main()
