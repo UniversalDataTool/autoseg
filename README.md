@@ -1,5 +1,7 @@
 # autoseg | Automatic Fast WebAssembly Image Segmentation
 
+> Are you looking to convert UDT annotations into png masks? Use [udt-to-png](https://github.com/UniversalDataTool/udt-to-png)
+
 autoseg segments images from a list of points and polygons containing
 classifications. Autoseg was originally created by [Severin Ibarluzea](https://twitter.com/seveibar) for usage with the [Universal Data Tool](https://github.com/UniversalDataTool/universal-data-tool).
 
