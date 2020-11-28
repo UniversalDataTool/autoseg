@@ -69,14 +69,21 @@ void getAllIntersections(const ClassPolygon &polygon,
       intersections.push_back(ci);
     }
   }
-  std::sort(intersections.begin(), intersections.end());
-  const bool hasDuplicate =
-      std::adjacent_find(intersections.begin(), intersections.end()) !=
-      intersections.end();
-  if (hasDuplicate) {
-    // Vary ri to avoid scanning a corner
-    intersections.clear();
-    getAllIntersections(polygon, intersections, ri + 0.01);
+  // std::sort(intersections.begin(), intersections.end());
+  // const bool hasDuplicate =
+  //     std::adjacent_find(intersections.begin(), intersections.end()) !=
+  //     intersections.end();
+  // if (hasDuplicate) {
+  //   // Vary ri to avoid scanning a corner
+  //   intersections.clear();
+  //   getAllIntersections(polygon, intersections, ri + 0.01);
+  // }
+
+  // Remove duplicate intersections on polygon corners
+  for (int i = intersections.size() - 1; i > 0; i--) {
+    if (std::abs(intersections[i] - intersections[i - 1]) < 0.0001) {
+      intersections.erase(intersections.begin() + i);
+    }
   }
 }
 

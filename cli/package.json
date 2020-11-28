@@ -8,7 +8,7 @@
     "autoseg": "./bin/autoseg"
   },
   "dependencies": {
-    "autoseg": "^0.0.10",
+    "autoseg": "^0.0.11",
     "cli-progress": "^3.8.2",
     "download": "^8.0.0",
     "fast-png": "^5.0.2",
