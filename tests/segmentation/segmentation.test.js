@@ -1,7 +1,7 @@
 const test = require("ava")
 const fs = require("fs")
 const path = require("path")
-const m = require("../../build/module-wasm-bundle.js")
+const m = require("../../build/module.js")
 const range = require("lodash/range")
 
 const f = (p) => path.join(__dirname, p)

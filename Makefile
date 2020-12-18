@@ -31,7 +31,7 @@ build/module.js: setup globals.bc
 	cp yarn.lock ./module/yarn.lock
 	cp ./module-files/* ./module
 
-	parcel build ./module/webworker-worker.js -d module -o /webworker-worker-bundle.js
+	npx parcel build ./module/webworker-worker.js -d module -o /webworker-worker-bundle.js
 
 	# cd module && npm version patch && npm publish
 

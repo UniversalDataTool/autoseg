@@ -1,6 +1,6 @@
 {
   "name": "autoseg",
-  "version": "0.0.10",
+  "version": "0.0.12",
   "main": "web.js",
   "repository": "git@github.com:UniversalDataTool/autoseg.git",
   "author": "seveibar <seveibar@gmail.com>",
@@ -19,6 +19,7 @@
     "eslint-plugin-react": "7.x",
     "eslint-plugin-react-hooks": "2.x",
     "lodash": "^4.17.15",
+    "parcel": "^1.12.4",
     "prettier": "^2.0.5",
     "regenerator-runtime": "^0.13.7"
   }
