@@ -18,7 +18,7 @@
     "eslint-plugin-jsx-a11y": "6.x",
     "eslint-plugin-react": "7.x",
     "eslint-plugin-react-hooks": "2.x",
-    "lodash": "^4.17.15",
+    "lodash": "^4.17.19",
     "parcel": "^1.12.4",
     "prettier": "^2.0.5",
     "regenerator-runtime": "^0.13.7"
